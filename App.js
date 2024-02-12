@@ -1,20 +1,56 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import {
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    Alert,
+    StyleSheet,
+    Text,
+    useColorScheme,
+    View,
+    TextInput,
+    TouchableOpacity, Pressable,
+} from 'react-native';
+import React, {useState} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import ForgotPassword from "./ForgotPassword";
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import Login from "./Login";
+import Signup from "./Signup";
+import StudentLogin from "./Student";
+import AcademicianLogin from "./Academician";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+const Stack = createNativeStackNavigator();
+
+function App() {
+    return (
+        <NavigationContainer>
+            <Stack.Navigator>
+                <Stack.Screen
+                    name="Login"
+                    component={Login}
+                    options={{title: 'Giriş Yap'}}
+                />
+                <Stack.Screen
+                    name="StudentLogin"
+                    component={StudentLogin}
+                    options={{title: 'Öğrenci Girişi'}}
+                />
+                <Stack.Screen
+                    name="AcademicianLogin"
+                    component={AcademicianLogin}
+                    options={{title: 'Akademisyen Girişi'}}
+                />
+                <Stack.Screen name="ForgotPassword"
+                              component={ForgotPassword}
+                              options={{title: 'Şife Sıfırlama'}}
+                />
+                <Stack.Screen name="Signup"
+                              component={Signup}
+                              options={{title: 'Kayıt Ol'}}
+                />
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
