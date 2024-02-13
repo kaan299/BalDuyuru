@@ -1,17 +1,50 @@
-import {Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
-import React from "react";
+import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import React, {useState} from "react";
+import Toast from 'react-native-toast-message';
+import {auth} from './firebase'
+import {signInWithEmailAndPassword} from "firebase/auth";
 
-export default function StudentLogin() {
+export default function StudentLogin({navigation}) {
+    var [email, setEmail] = useState("");
+    var [password, setPassword] = useState("");
+
     const onPressLogin = () => {
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log(user);
+                Toast.show({
+                    type: 'success',
+                    position: 'bottom',
+                    text1: 'Giriş başarılı'
+                });
+            })
+            .catch((error) => {
+                if (error.code === 'auth/invalid-email') {
+                    Toast.show({
+                        type: 'error',
+                        position: 'bottom',
+                        text1: 'E-posta geçersiz'
+                    });
+                }
 
-    };
+                if (error.code === 'auth/missing-password') {
+                    Toast.show({
+                        type: 'error',
+                        position: 'bottom',
+                        text1: 'Şifre geçersiz'
+                    });
+                }
 
-    const onPressForgotPassword = () => {
-
-    };
-
-    const onPressSignUp = () => {
-
+                if (error.code === 'auth/invalid-credential') {
+                    Toast.show({
+                        type: 'error',
+                        position: 'bottom',
+                        text1: 'Kullanıcı bulunamadı'
+                    });
+                }
+                console.log(error);
+            });
     };
 
     return (
@@ -22,7 +55,8 @@ export default function StudentLogin() {
                     style={styles.inputText}
                     placeholder="Eposta"
                     placeholderTextColor="#003f5c"
-                    onChangeText={text => setState({email: text})}/>
+                    autoCapitalize='none'
+                    onChangeText={text => setEmail(text)}/>
             </View>
             <View style={styles.inputView}>
                 <TextInput
@@ -30,7 +64,7 @@ export default function StudentLogin() {
                     secureTextEntry
                     placeholder="Şifre"
                     placeholderTextColor="#003f5c"
-                    onChangeText={text => setState({password: text})}/>
+                    onChangeText={text => setPassword(text)}/>
             </View>
             <TouchableOpacity
                 onPress={() => navigation.navigate("ForgotPassword")}>
@@ -72,8 +106,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#eee'
     },
     inputText: {
-        height: 50,
-        color: "white"
+        height: 50
     },
     forgotAndSignUpText: {
         color: "black",

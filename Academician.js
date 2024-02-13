@@ -1,18 +1,47 @@
 import {Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
-import React from "react";
+import React, {useState} from "react";
+import {signInWithEmailAndPassword} from "firebase/auth";
+import Toast from "react-native-toast-message";
+import {auth} from './firebase'
 
-export default function AcademicianLogin() {
+export default function AcademicianLogin({navigation}) {
+    var [email, setEmail] = useState("");
+    var [password, setPassword] = useState("");
+
     const onPressLogin = () => {
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log(user);
+            })
+            .catch((error) => {
+                if (error.code === 'auth/invalid-email') {
+                    Toast.show({
+                        type: 'error',
+                        position: 'bottom',
+                        text1: 'E-posta geçersiz'
+                    });
+                }
 
+                if (error.code === 'auth/missing-password') {
+                    Toast.show({
+                        type: 'error',
+                        position: 'bottom',
+                        text1: 'Şifre geçersiz'
+                    });
+                }
+
+                if (error.code === 'auth/invalid-credential') {
+                    Toast.show({
+                        type: 'error',
+                        position: 'bottom',
+                        text1: 'Kullanıcı bulunamadı'
+                    });
+                }
+                console.log(error);
+            });
     };
 
-    const onPressForgotPassword = () => {
-
-    };
-
-    const onPressSignUp = () => {
-
-    };
 
     return (
         <View style={styles.container}>
@@ -22,7 +51,7 @@ export default function AcademicianLogin() {
                     style={styles.inputText}
                     placeholder="Eposta"
                     placeholderTextColor="#003f5c"
-                    onChangeText={text => setState({email: text})}/>
+                    onChangeText={text => setEmail(text)}/>
             </View>
             <View style={styles.inputView}>
                 <TextInput
@@ -30,7 +59,7 @@ export default function AcademicianLogin() {
                     secureTextEntry
                     placeholder="Şifre"
                     placeholderTextColor="#003f5c"
-                    onChangeText={text => setState({password: text})}/>
+                    onChangeText={text => setPassword(text)}/>
             </View>
             <TouchableOpacity
                 onPress={() => navigation.navigate("ForgotPassword")}>
@@ -73,7 +102,6 @@ const styles = StyleSheet.create({
     },
     inputText: {
         height: 50,
-        color: "white"
     },
     forgotAndSignUpText: {
         color: "black",

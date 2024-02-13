@@ -1,16 +1,3 @@
-import {
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    Alert,
-    StyleSheet,
-    Text,
-    useColorScheme,
-    View,
-    TextInput,
-    TouchableOpacity, Pressable,
-} from 'react-native';
-import React, {useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import ForgotPassword from "./ForgotPassword";
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -18,6 +5,8 @@ import Login from "./Login";
 import Signup from "./Signup";
 import StudentLogin from "./Student";
 import AcademicianLogin from "./Academician";
+import Toast from 'react-native-toast-message';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -49,6 +38,7 @@ function App() {
                               options={{title: 'Kayıt Ol'}}
                 />
             </Stack.Navigator>
+            <Toast />
         </NavigationContainer>
     );
 }
