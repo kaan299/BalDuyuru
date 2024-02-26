@@ -1,18 +1,22 @@
-import {Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import React, {useState} from "react";
 import {signInWithEmailAndPassword} from "firebase/auth";
 import Toast from "react-native-toast-message";
 import {auth} from './firebase'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AcademicianLogin({navigation}) {
-    var [email, setEmail] = useState("");
-    var [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
     const onPressLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                console.log(user);
+                const userInfo = JSON.stringify({email: user.email, name: user.displayName});
+                AsyncStorage.setItem("user", userInfo).then(() => {
+                    navigation.navigate("CreateAnnouncement");
+                });
             })
             .catch((error) => {
                 if (error.code === 'auth/invalid-email') {
@@ -109,7 +113,7 @@ const styles = StyleSheet.create({
     },
     loginBtn: {
         width: "80%",
-        backgroundColor: "#fb5b5a",
+        backgroundColor: "#0bbe8a",
         borderRadius: 5,
         color: "white",
         height: 50,

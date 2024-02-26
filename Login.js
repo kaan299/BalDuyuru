@@ -1,17 +1,24 @@
-import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import React from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login({navigation}) {
+    AsyncStorage.getItem("user", (user) => {
+        navigation.navigate("CreateAnnouncement");
+    }).then((user) => {
+    });
+
     return (
         <View style={styles.container}>
-            <Text style={styles.title}> Giriş Yap</Text>
+            <Image source={require('./assets/logo.png')} style={styles.logo}/>
+            <Text style={styles.title}> BalDuyuru</Text>
             <TouchableOpacity
-                onPress={()=> navigation.navigate("StudentLogin")}
+                onPress={() => navigation.navigate("Announcements")}
                 style={styles.loginBtn}>
                 <Text style={styles.loginText}>Öğrenci Girişi</Text>
             </TouchableOpacity>
             <TouchableOpacity
-                onPress={()=> navigation.navigate("AcademicianLogin")}
+                onPress={() => navigation.navigate("AcademicianLogin")}
                 style={styles.loginBtn}>
                 <Text style={styles.loginText}>Akademisyen Girişi</Text>
             </TouchableOpacity>
@@ -27,11 +34,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
+    logo: {
+        width: 180,
+        height: 180,
+        marginBottom: 20
+    },
     title: {
         fontWeight: "bold",
-        fontSize: 50,
+        fontSize: 30,
         color: "#000",
-        marginBottom: 40,
+        marginBottom: 20
     },
     inputView: {
         width: "80%",
@@ -52,13 +64,13 @@ const styles = StyleSheet.create({
     },
     loginBtn: {
         width: "80%",
-        backgroundColor: "#fb5b5a",
+        backgroundColor: "#0bbe8a",
         borderRadius: 5,
         color: "white",
         height: 50,
         alignItems: "center",
         justifyContent: "center",
-        marginBottom: 20,
-        marginTop: 20
+        marginBottom: 10,
+        marginTop: 10
     },
 });

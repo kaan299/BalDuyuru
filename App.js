@@ -3,10 +3,10 @@ import ForgotPassword from "./ForgotPassword";
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Login from "./Login";
 import Signup from "./Signup";
-import StudentLogin from "./Student";
+import Announcements from "./Announcements";
 import AcademicianLogin from "./Academician";
 import Toast from 'react-native-toast-message';
-
+import CreateAnnouncement from "./CreateAnnouncement";
 
 const Stack = createNativeStackNavigator();
 
@@ -20,14 +20,14 @@ function App() {
                     options={{title: 'Giriş Yap'}}
                 />
                 <Stack.Screen
-                    name="StudentLogin"
-                    component={StudentLogin}
-                    options={{title: 'Öğrenci Girişi'}}
+                    name="Announcements"
+                    component={Announcements}
+                    options={{title: 'Duyurular'}}
                 />
                 <Stack.Screen
                     name="AcademicianLogin"
                     component={AcademicianLogin}
-                    options={{title: 'Akademisyen Girişi'}}
+                    options={{title: 'Akademisyen'}}
                 />
                 <Stack.Screen name="ForgotPassword"
                               component={ForgotPassword}
@@ -37,8 +37,12 @@ function App() {
                               component={Signup}
                               options={{title: 'Kayıt Ol'}}
                 />
+                <Stack.Screen name="CreateAnnouncement"
+                              component={CreateAnnouncement}
+                              options={{title: 'Duyuru Ekle'}}
+                />
             </Stack.Navigator>
-            <Toast />
+            <Toast/>
         </NavigationContainer>
     );
 }
