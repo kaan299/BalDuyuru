@@ -1,16 +1,12 @@
-import {StyleSheet} from "react-native";
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import FacultyAnnouncements from "./FacultyAnnouncements";
-import GeneralAnnouncements from "./GeneralAnnouncements";
+import {Text, View} from "react-native";
+import React from "react";
+import {StyleSheet} from 'react-native';
 
-const Tab = createMaterialTopTabNavigator();
-
-export default function Announcements() {
+export default function Administrator() {
     return (
-        <Tab.Navigator>
-            <Tab.Screen name="Genel Duyuru" component={GeneralAnnouncements} />
-            <Tab.Screen name="Fakülte Duyuruları" component={FacultyAnnouncements} />
-        </Tab.Navigator>
+        <View style={styles.container}>
+            <Text style={styles.text}>Yönetici girişi</Text>
+        </View>
     );
 }
 
@@ -21,11 +17,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
+    logo: {
+        width: 180,
+        height: 180,
+        marginBottom: 20
+    },
     title: {
         fontWeight: "bold",
         fontSize: 30,
         color: "#000",
-        marginBottom: 40,
+        marginBottom: 20
     },
     inputView: {
         width: "80%",
@@ -37,7 +38,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#eee'
     },
     inputText: {
-        height: 50
+        height: 50,
+        color: "white"
     },
     forgotAndSignUpText: {
         color: "black",
@@ -51,7 +53,7 @@ const styles = StyleSheet.create({
         height: 50,
         alignItems: "center",
         justifyContent: "center",
-        marginBottom: 20,
-        marginTop: 20
+        marginBottom: 10,
+        marginTop: 10
     },
 });

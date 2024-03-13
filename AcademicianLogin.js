@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function AcademicianLogin({navigation}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
+    
     const onPressLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
@@ -55,6 +55,11 @@ export default function AcademicianLogin({navigation}) {
                     style={styles.inputText}
                     placeholder="Eposta"
                     placeholderTextColor="#003f5c"
+                    textContentType='emailAddress'
+                    keyboardType='email-address'
+                    autoCapitalize='none'
+                    autoCorrect={false}
+                    autoCompleteType='email'
                     onChangeText={text => setEmail(text)}/>
             </View>
             <View style={styles.inputView}>
@@ -73,10 +78,6 @@ export default function AcademicianLogin({navigation}) {
                 onPress={onPressLogin}
                 style={styles.loginBtn}>
                 <Text style={styles.loginText}>Giriş Yap</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={() => navigation.navigate("Signup")}>
-                <Text style={styles.forgotAndSignUpText}>Kayıt Ol</Text>
             </TouchableOpacity>
         </View>
     );
@@ -113,7 +114,7 @@ const styles = StyleSheet.create({
     },
     loginBtn: {
         width: "80%",
-        backgroundColor: "#0bbe8a",
+        backgroundColor: "#30b8be",
         borderRadius: 5,
         color: "white",
         height: 50,
@@ -122,4 +123,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         marginTop: 20
     },
+    loginText: {
+        color: "white"
+    }
 });

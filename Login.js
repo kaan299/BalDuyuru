@@ -3,10 +3,19 @@ import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login({navigation}) {
-    AsyncStorage.getItem("user", (user) => {
-        navigation.navigate("CreateAnnouncement");
-    }).then((user) => {
-    });
+    function getUserCallback(user) {
+        console.log(user);
+        
+        if (user === null) {
+            navigation.navigate("AcademicianLogin");
+        } else {
+            navigation.navigate("CreateAnnouncement");
+        }
+    }
+
+    const academicianLogin = () => {
+        AsyncStorage.getItem("user").then(getUserCallback);
+    }
 
     return (
         <View style={styles.container}>
@@ -14,13 +23,18 @@ export default function Login({navigation}) {
             <Text style={styles.title}> BalDuyuru</Text>
             <TouchableOpacity
                 onPress={() => navigation.navigate("Announcements")}
-                style={styles.loginBtn}>
-                <Text style={styles.loginText}>Öğrenci Girişi</Text>
+                style={styles.studentLoginBtn}>
+                <Text style={styles.loginText}>Öğrenci</Text>
             </TouchableOpacity>
             <TouchableOpacity
-                onPress={() => navigation.navigate("AcademicianLogin")}
-                style={styles.loginBtn}>
-                <Text style={styles.loginText}>Akademisyen Girişi</Text>
+                onPress={academicianLogin}
+                style={styles.academicianLoginBtn}>
+                <Text style={styles.loginText}>Akademisyen</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                onPress={() => navigation.navigate("AdminLogin")}
+                style={styles.adminLoginBtn}>
+                <Text style={styles.loginText}>Yönetici</Text>
             </TouchableOpacity>
         </View>
     )
@@ -62,15 +76,37 @@ const styles = StyleSheet.create({
         color: "black",
         fontSize: 14
     },
-    loginBtn: {
+    studentLoginBtn: {
         width: "80%",
-        backgroundColor: "#0bbe8a",
+        backgroundColor: "#008884",
         borderRadius: 5,
-        color: "white",
         height: 50,
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 10,
         marginTop: 10
     },
+    academicianLoginBtn: {
+        width: "80%",
+        backgroundColor: "#30b8be",
+        borderRadius: 5,
+        height: 50,
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 10,
+        marginTop: 10
+    },
+    adminLoginBtn: {
+        width: "80%",
+        backgroundColor: "#2aabde",
+        borderRadius: 5,
+        height: 50,
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 10,
+        marginTop: 10
+    },
+    loginText: {
+        color: "white"
+    }
 });
