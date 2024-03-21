@@ -2,7 +2,7 @@ import {FlatList, StyleSheet, Text, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import {collection, getDocs, query, where} from "firebase/firestore";
 import {database} from "./firebase";
-import {facultyType} from "./constants";
+import {departmentType} from "./constants";
 
 const Item = ({title}) => {
     return (
@@ -12,11 +12,11 @@ const Item = ({title}) => {
     )
 }
 
-export default function FacultyAnnouncements() {
+export default function DepartmentAnnouncements() {
     const [announcements, setAnnouncements] = useState([]);
 
     const getAnnouncements = () => {
-        const q = query(collection(database, 'announcement'), where('type', '==', facultyType));
+        const q = query(collection(database, 'announcement'), where('type', '==', departmentType));
         getDocs(q).then(snapshot => {
             const data = snapshot.docs.map(x => x.data());
             setAnnouncements(data);

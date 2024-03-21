@@ -1,18 +1,11 @@
-import {StyleSheet} from "react-native";
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import FacultyAnnouncements from "./FacultyAnnouncements";
-import GeneralAnnouncements from "./GeneralAnnouncements";
-import DepartmentAnnouncements from "./DepartmentAnnouncements";
+import {StyleSheet, Text, View} from "react-native";
+import React from "react";
 
-const Tab = createMaterialTopTabNavigator();
-
-export default function Announcements() {
+export default function AcademicianManagement() {
     return (
-        <Tab.Navigator>
-            <Tab.Screen name="Genel" component={GeneralAnnouncements} />
-            <Tab.Screen name="Fakülte" component={FacultyAnnouncements} />
-            <Tab.Screen name="Bölüm" component={DepartmentAnnouncements} />
-        </Tab.Navigator>
+        <View style={styles.container}>
+            <Text style={styles.title}> Akademisyen yönetimi</Text>
+        </View>
     );
 }
 
@@ -25,7 +18,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontWeight: "bold",
-        fontSize: 30,
+        fontSize: 50,
         color: "#000",
         marginBottom: 40,
     },
@@ -39,7 +32,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#eee'
     },
     inputText: {
-        height: 50
+        height: 50,
+        color: "white"
     },
     forgotAndSignUpText: {
         color: "black",
@@ -47,7 +41,7 @@ const styles = StyleSheet.create({
     },
     loginBtn: {
         width: "80%",
-        backgroundColor: "#008884",
+        backgroundColor: "#fb5b5a",
         borderRadius: 5,
         color: "white",
         height: 50,

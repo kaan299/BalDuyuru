@@ -1,50 +1,23 @@
 import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
-import React, {useEffect, useState} from "react";
+import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SelectDropdown from "react-native-select-dropdown";
-
-const faculties = ["GENEL DUYURU",
-    "BURHANİYE UYGULAMALI BİLİMLER FAKÜLTESİ",
-    "FEN-EDEBİYAT FAKÜLTESİ",
-    "GÜZEL SANATLAR FAKÜLTESİ",
-    "HUKUK FAKÜLTESİ",
-    "İKTİSADİ VE İDARİ BİLİMLER FAKÜLTESİ",
-    "İLAHİYAT FAKÜLTESİ",
-    "MİMARLIK FAKÜLTESİ",
-    "MÜHENDİSLİK FAKÜLTESİ",
-    "NECATİBEY EĞİTİM FAKÜLTESİ",
-    "SAĞLIK BİLİMLERİ FAKÜLTESİ",
-    "SPOR BİLİMLERİ FAKÜLTESİ",
-    "TIP FAKÜLTESİ",
-    "TURİZM FAKÜLTESİ",
-    "VETERİNER FAKÜLTESİ"];
+import {academicianUserKey} from "./constants";
+import faculties from "./faculties";
 
 export default function CreateAnnouncement({navigation}) {
-    const [user, setUser] = useState(null);
-
-    useEffect(() => {
-        AsyncStorage.getItem("user", (user) => {
-        }).then((user) => {
-            setUser(JSON.parse(user));
-        });
-    }, []);
-
     const onSave = () => {
 
     }
 
     const onLogout = () => {
-        AsyncStorage.removeItem("user").then(() => {
+        AsyncStorage.removeItem(academicianUserKey).then(() => {
             navigation.navigate("Login");
         });
     }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Duyuru Ekle</Text>
-            {user != null &&
-                <Text style={{marginBottom: 20}}>Akademisyen: {user.email}</Text>
-            }
             <SelectDropdown
                 dropdownStyle={styles.dropdown}
                 buttonStyle={styles.dropdownButton}

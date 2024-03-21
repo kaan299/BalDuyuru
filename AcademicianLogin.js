@@ -2,20 +2,41 @@ import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native"
 import React, {useState} from "react";
 import {signInWithEmailAndPassword} from "firebase/auth";
 import Toast from "react-native-toast-message";
-import {auth} from './firebase'
+import {auth, database} from './firebase'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {collection, getDocs, query, where} from "firebase/firestore";
+import {bolumRole, fakulteRole} from "./roles";
+import {academicianUserKey} from "./constants";
 
 export default function AcademicianLogin({navigation}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    
+
     const onPressLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                const userInfo = JSON.stringify({email: user.email, name: user.displayName});
-                AsyncStorage.setItem("user", userInfo).then(() => {
-                    navigation.navigate("CreateAnnouncement");
+
+                const q = query(collection(database, 'roles'), where('userId', '==', user.uid));
+                getDocs(q).then(snapshot => {
+                    const userRoles = snapshot.docs[0].data().roles;
+                    if (userRoles.includes(fakulteRole) || userRoles.includes(bolumRole)) {
+                        const userInfo = JSON.stringify({
+                            id: user.uid,
+                            email: user.email,
+                            name: user.displayName,
+                            roles: userRoles
+                        });
+                        AsyncStorage.setItem(academicianUserKey, userInfo).then(() => {
+                            navigation.navigate("CreateAnnouncement");
+                        });
+                    } else {
+                        Toast.show({
+                            type: 'error',
+                            position: 'bottom',
+                            text1: 'Yetki bulunamadı'
+                        });
+                    }
                 });
             })
             .catch((error) => {
@@ -45,7 +66,6 @@ export default function AcademicianLogin({navigation}) {
                 console.log(error);
             });
     };
-
 
     return (
         <View style={styles.container}>

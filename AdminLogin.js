@@ -1,20 +1,70 @@
 import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import React, {useState} from "react";
-import {database} from "./firebase";
-import {collection, where, query, getDocs} from 'firebase/firestore'
+import {auth, database} from "./firebase";
+import {signInWithEmailAndPassword} from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Toast from "react-native-toast-message";
+import {getDocs, query, collection, where} from 'firebase/firestore';
+import {adminRole} from "./roles";
+import {adminUserKey} from "./constants";
 
 export default function AdminLogin({navigation}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const onPressLogin = () => {
-        console.log('database', database);
-        const q = query(collection(database, "admins"),
-            where('email', '==', email),
-            where('password', '==', password));
-        getDocs(q).then(docs => {
-            console.log(docs.docs);
-        });
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+
+                const q = query(collection(database, 'roles'), where('userId', '==', user.uid));
+                getDocs(q).then(snapshot => {
+                    const userRoles = snapshot.docs[0].data().roles;
+                    if (userRoles.includes(adminRole)) {
+                        const userInfo = JSON.stringify({
+                            id: user.uid,
+                            email: user.email,
+                            name: user.displayName,
+                            roles: userRoles
+                        });
+                        AsyncStorage.setItem(adminUserKey, userInfo).then(() => {
+                            navigation.navigate("Administrator");
+                        });
+                    } else {
+                        Toast.show({
+                            type: 'error',
+                            position: 'bottom',
+                            text1: 'Yetki bulunamadı'
+                        });
+                    }
+                });
+            })
+            .catch((error) => {
+                if (error.code === 'auth/invalid-email') {
+                    Toast.show({
+                        type: 'error',
+                        position: 'bottom',
+                        text1: 'E-posta geçersiz'
+                    });
+                }
+
+                if (error.code === 'auth/missing-password') {
+                    Toast.show({
+                        type: 'error',
+                        position: 'bottom',
+                        text1: 'Şifre geçersiz'
+                    });
+                }
+
+                if (error.code === 'auth/invalid-credential') {
+                    Toast.show({
+                        type: 'error',
+                        position: 'bottom',
+                        text1: 'Kullanıcı bulunamadı'
+                    });
+                }
+                console.log(error);
+            });
     };
 
     return (

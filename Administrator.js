@@ -1,59 +1,74 @@
-import {Text, View} from "react-native";
-import React from "react";
-import {StyleSheet} from 'react-native';
+import {Text, TouchableOpacity, View} from "react-native";
+import {StyleSheet} from "react-native";
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import AdminAnnouncements from "./AdminAnnouncements";
+import AcademicianManagement from "./AcademicianManagement";
+import React, {useEffect, useState} from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {adminUserKey} from "./constants";
 
-export default function Administrator() {
+const Tab = createMaterialTopTabNavigator();
+
+export default function Administrator({navigation}) {
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        AsyncStorage.getItem(adminUserKey, (user) => {
+        }).then((user) => {
+            setUser(JSON.parse(user));
+        });
+    }, []);
+
+    const onLogout = () => {
+        AsyncStorage.removeItem(adminUserKey).then(() => {
+            navigation.navigate("Login");
+        });
+    }
+
     return (
-        <View style={styles.container}>
-            <Text style={styles.text}>Yönetici girişi</Text>
-        </View>
+        <>
+            {user != null &&
+                <View style={styles.pageHeader}>
+                    <Text style={styles.headerTxt}>Yönetici: {user.email}</Text>
+                    <TouchableOpacity
+                        onPress={onLogout}
+                        style={styles.logoutBtn}
+                    >
+                        <Text style={styles.btnTxt}>Çıkış Yap</Text>
+                    </TouchableOpacity>
+                </View>
+            }
+            <Tab.Navigator>
+                <Tab.Screen name="Duyurular" component={AdminAnnouncements}/>
+                <Tab.Screen name="Akademisyenler" component={AcademicianManagement}/>
+            </Tab.Navigator>
+        </>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    logo: {
-        width: 180,
-        height: 180,
-        marginBottom: 20
-    },
-    title: {
-        fontWeight: "bold",
-        fontSize: 30,
-        color: "#000",
-        marginBottom: 20
-    },
-    inputView: {
-        width: "80%",
-        borderRadius: 5,
-        height: 50,
-        marginBottom: 20,
-        justifyContent: "center",
-        padding: 20,
-        backgroundColor: '#eee'
-    },
-    inputText: {
-        height: 50,
-        color: "white"
-    },
-    forgotAndSignUpText: {
-        color: "black",
+    btnTxt: {
+        color: "white",
         fontSize: 14
     },
-    loginBtn: {
-        width: "80%",
+    logoutBtn: {
+        width: 100,
         backgroundColor: "#008884",
         borderRadius: 5,
-        color: "white",
-        height: 50,
+        height: 30,
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 10,
         marginTop: 10
     },
+    pageHeader: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-around'
+    },
+    headerTxt: {
+        marginLeft: 10,
+        marginTop: 15, 
+        marginBottom: 15
+    }
 });

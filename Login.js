@@ -1,11 +1,10 @@
-import {Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {academicianUserKey, adminUserKey} from "./constants";
 
 export default function Login({navigation}) {
     function getUserCallback(user) {
-        console.log(user);
-        
         if (user === null) {
             navigation.navigate("AcademicianLogin");
         } else {
@@ -14,7 +13,19 @@ export default function Login({navigation}) {
     }
 
     const academicianLogin = () => {
-        AsyncStorage.getItem("user").then(getUserCallback);
+        AsyncStorage.getItem(academicianUserKey).then(getUserCallback);
+    }
+
+    function getAdminCallback(user) {
+        if (user === null) {
+            navigation.navigate("AdminLogin");
+        } else {
+            navigation.navigate("Administrator");
+        }
+    }
+    
+    const adminLogin = () => {
+        AsyncStorage.getItem(adminUserKey).then(getAdminCallback);
     }
 
     return (
@@ -32,7 +43,7 @@ export default function Login({navigation}) {
                 <Text style={styles.loginText}>Akademisyen</Text>
             </TouchableOpacity>
             <TouchableOpacity
-                onPress={() => navigation.navigate("AdminLogin")}
+                onPress={adminLogin}
                 style={styles.adminLoginBtn}>
                 <Text style={styles.loginText}>Yönetici</Text>
             </TouchableOpacity>
