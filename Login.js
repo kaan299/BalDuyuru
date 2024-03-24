@@ -1,14 +1,14 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {academicianUserKey, adminUserKey} from "./constants";
+import {academicianUserKey, adminUserKey, studentUserKey} from "./constants";
 
 export default function Login({navigation}) {
     function getUserCallback(user) {
         if (user === null) {
             navigation.navigate("AcademicianLogin");
         } else {
-            navigation.navigate("CreateAnnouncement");
+            navigation.navigate("AcademicianCreateAnnouncement");
         }
     }
 
@@ -23,9 +23,21 @@ export default function Login({navigation}) {
             navigation.navigate("Administrator");
         }
     }
-    
+
     const adminLogin = () => {
         AsyncStorage.getItem(adminUserKey).then(getAdminCallback);
+    }
+
+    function getStudentCallback(facultyDepartment) {
+        if (facultyDepartment === null) {
+            navigation.navigate("ChooseFacultyDepartment");
+        } else {
+            navigation.navigate("Announcements");
+        }
+    }
+
+    const studentLogin = () => {
+        AsyncStorage.getItem(studentUserKey).then(getStudentCallback);
     }
 
     return (
@@ -33,7 +45,7 @@ export default function Login({navigation}) {
             <Image source={require('./assets/logo.png')} style={styles.logo}/>
             <Text style={styles.title}> BalDuyuru</Text>
             <TouchableOpacity
-                onPress={() => navigation.navigate("Announcements")}
+                onPress={studentLogin}
                 style={styles.studentLoginBtn}>
                 <Text style={styles.loginText}>Öğrenci</Text>
             </TouchableOpacity>

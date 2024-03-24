@@ -1,8 +1,9 @@
-import {FlatList, StyleSheet, Text, View} from "react-native";
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import {collection, getDocs, query, where} from "firebase/firestore";
-import {database} from "./firebase";
-import {generalType} from "./constants";
+import {database} from "../firebase";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {adminUserKey} from "../constants";
 
 const Item = ({title}) => {
     return (
@@ -12,11 +13,20 @@ const Item = ({title}) => {
     )
 }
 
-export default function GeneralAnnouncements() {
-    const [announcements, setAnnouncements] = useState(null);
+export default function AdminAnnouncements({navigation}) {
+    const [user, setUser] = useState();
+    const [announcements, setAnnouncements] = useState([]);
+
+    useEffect(() => {
+        AsyncStorage.getItem(adminUserKey, (user) => {
+        }).then((user) => {
+            setUser(JSON.parse(user));
+        });
+    }, []);
 
     const getAnnouncements = () => {
-        const q = query(collection(database, 'announcement'), where('type', '==', generalType));
+        const q = query(collection(database, 'announcement'),
+            where('userId', '==', user.id));
         getDocs(q).then(snapshot => {
             const data = snapshot.docs.map(x => x.data());
             setAnnouncements(data);
@@ -24,21 +34,31 @@ export default function GeneralAnnouncements() {
     }
 
     useEffect(() => {
-        getAnnouncements();
-    });
+        if (user) {
+            getAnnouncements();
+        }
+    }, [user]);
 
     return (
         <View style={styles.container}>
-            {!announcements && <Text style={{marginTop: 10}}>Yükleniyor...</Text>}
+            <TouchableOpacity
+                style={styles.btn}
+                onPress={() => navigation.navigate('AdminCreateAnnouncement')}
+            >
+                <Text style={styles.btnTxt}>Yeni Duyuru Ekle</Text>
+            </TouchableOpacity>
+            <View style={styles.line}/>
+            {announcements.length === 0 && <Text>Yükleniyor...</Text>}
+            {!announcements && <Text>Yükleniyor...</Text>}
             {announcements &&
                 <>
-                    {announcements.length === 0 && <Text style={{marginTop: 10}}>Duyuru bulunamadı...</Text>}
                     <FlatList data={announcements}
                               renderItem={({item}) => <Item style={styles.item} title={item.title}
                                                             createdDate={item.createdDate}/>}
                               keyExtractor={item => item.id}
                               contentContainerStyle={styles.flatListContent}
                     />
+                    {announcements.length === 0 && <Text>Duyuru bulunamadı...</Text>}
                 </>
             }
         </View>
@@ -47,9 +67,7 @@ export default function GeneralAnnouncements() {
 
 const styles = StyleSheet.create({
     container: {
-        width: '100%',
-        backgroundColor: '#fff',
-        alignItems: 'center',
+        width: '100%'
     },
     title: {
         fontWeight: "bold",

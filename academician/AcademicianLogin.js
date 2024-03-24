@@ -2,11 +2,11 @@ import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native"
 import React, {useState} from "react";
 import {signInWithEmailAndPassword} from "firebase/auth";
 import Toast from "react-native-toast-message";
-import {auth, database} from './firebase'
+import {auth, database} from '../firebase'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {collection, getDocs, query, where} from "firebase/firestore";
-import {bolumRole, fakulteRole} from "./roles";
-import {academicianUserKey} from "./constants";
+import {bolumRole, fakulteRole} from "../roles";
+import {academicianUserKey} from "../constants";
 
 export default function AcademicianLogin({navigation}) {
     const [email, setEmail] = useState("");
@@ -19,16 +19,18 @@ export default function AcademicianLogin({navigation}) {
 
                 const q = query(collection(database, 'roles'), where('userId', '==', user.uid));
                 getDocs(q).then(snapshot => {
-                    const userRoles = snapshot.docs[0].data().roles;
-                    if (userRoles.includes(fakulteRole) || userRoles.includes(bolumRole)) {
+                    const userRole = snapshot.docs[0].data();
+                    if (userRole.roles.includes(fakulteRole) || userRole.roles.includes(bolumRole)) {
                         const userInfo = JSON.stringify({
                             id: user.uid,
                             email: user.email,
                             name: user.displayName,
-                            roles: userRoles
+                            roles: userRole.roles,
+                            facultyId: userRole.facultyId,
+                            departmentId: userRole.departmentId
                         });
                         AsyncStorage.setItem(academicianUserKey, userInfo).then(() => {
-                            navigation.navigate("CreateAnnouncement");
+                            navigation.navigate("AcademicianCreateAnnouncement");
                         });
                     } else {
                         Toast.show({

@@ -5,7 +5,7 @@ import AdminAnnouncements from "./AdminAnnouncements";
 import AcademicianManagement from "./AcademicianManagement";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {adminUserKey} from "./constants";
+import {adminUserKey} from "../constants";
 
 const Tab = createMaterialTopTabNavigator();
 

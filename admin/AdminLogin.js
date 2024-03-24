@@ -1,12 +1,12 @@
 import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import React, {useState} from "react";
-import {auth, database} from "./firebase";
+import {auth, database} from "../firebase";
 import {signInWithEmailAndPassword} from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
 import {getDocs, query, collection, where} from 'firebase/firestore';
-import {adminRole} from "./roles";
-import {adminUserKey} from "./constants";
+import {adminRole} from "../roles";
+import {adminUserKey} from "../constants";
 
 export default function AdminLogin({navigation}) {
     const [email, setEmail] = useState("");

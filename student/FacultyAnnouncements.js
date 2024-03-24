@@ -1,9 +1,9 @@
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {FlatList, StyleSheet, Text, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import {collection, getDocs, query, where} from "firebase/firestore";
-import {database} from "./firebase";
+import {database} from "../firebase";
+import {facultyType, studentUserKey} from "../constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {adminUserKey} from "./constants";
 
 const Item = ({title}) => {
     return (
@@ -13,20 +13,20 @@ const Item = ({title}) => {
     )
 }
 
-export default function AdminAnnouncements({navigation}) {
-    const [user, setUser] = useState();
+export default function FacultyAnnouncements() {
     const [announcements, setAnnouncements] = useState([]);
+    const [facultyDepartment, setFacultyDepartment] = useState(null);
 
     useEffect(() => {
-        AsyncStorage.getItem(adminUserKey, (user) => {
-        }).then((user) => {
-            setUser(JSON.parse(user));
+        AsyncStorage.getItem(studentUserKey, (data) => {
+        }).then((data) => {
+            setFacultyDepartment(JSON.parse(data));
         });
     }, []);
 
     const getAnnouncements = () => {
         const q = query(collection(database, 'announcement'),
-            where('userId', '==', user.id));
+            where('type', '==', facultyType), where("facultyId", "==", facultyDepartment.facultyId));
         getDocs(q).then(snapshot => {
             const data = snapshot.docs.map(x => x.data());
             setAnnouncements(data);
@@ -34,31 +34,24 @@ export default function AdminAnnouncements({navigation}) {
     }
 
     useEffect(() => {
-        if (user) {
+        if (facultyDepartment) {
             getAnnouncements();
         }
-    }, [user]);
+    }, [facultyDepartment]);
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity
-                style={styles.btn}
-                onPress={() => navigation.navigate('CreateAnnouncement')}
-            >
-                <Text style={styles.btnTxt}>Yeni Duyuru Ekle</Text>
-            </TouchableOpacity>
-            <View style={styles.line}/>
-            {announcements.length === 0 && <Text>Yükleniyor...</Text>}
-            {!announcements && <Text>Yükleniyor...</Text>}
+            {facultyDepartment && <Text style={styles.tabHeader}>{facultyDepartment.facultyName}</Text>}
+            {!announcements && <Text style={{marginTop: 10}}>Yükleniyor...</Text>}
             {announcements &&
                 <>
+                    {announcements.length === 0 && <Text style={{marginTop: 10}}>Duyuru bulunamadı...</Text>}
                     <FlatList data={announcements}
                               renderItem={({item}) => <Item style={styles.item} title={item.title}
                                                             createdDate={item.createdDate}/>}
                               keyExtractor={item => item.id}
                               contentContainerStyle={styles.flatListContent}
                     />
-                    {announcements.length === 0 && <Text>Duyuru bulunamadı...</Text>}
                 </>
             }
         </View>
@@ -67,7 +60,9 @@ export default function AdminAnnouncements({navigation}) {
 
 const styles = StyleSheet.create({
     container: {
-        width: '100%'
+        width: '100%',
+        backgroundColor: '#fff',
+        alignItems: 'center',
     },
     title: {
         fontWeight: "bold",
@@ -120,5 +115,13 @@ const styles = StyleSheet.create({
         padding: 1,
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
+    },
+    tabHeader: {
+        backgroundColor: "#008884",
+        color: "white",
+        width: '100%',
+        textAlign: 'center',
+        padding: 10,
+        fontWeight: "400"
     }
 });
