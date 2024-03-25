@@ -7,12 +7,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {collection, getDocs, query, where} from "firebase/firestore";
 import {bolumRole, fakulteRole} from "../roles";
 import {academicianUserKey} from "../constants";
+import Spinner from "react-native-loading-spinner-overlay";
 
 export default function AcademicianLogin({navigation}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showSpinner, setShowSpinner] = useState(false);
 
     const onPressLogin = () => {
+        setShowSpinner(true);
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
@@ -30,6 +33,7 @@ export default function AcademicianLogin({navigation}) {
                             departmentId: userRole.departmentId
                         });
                         AsyncStorage.setItem(academicianUserKey, userInfo).then(() => {
+                            setShowSpinner(false);
                             navigation.navigate("AcademicianCreateAnnouncement");
                         });
                     } else {
@@ -42,6 +46,7 @@ export default function AcademicianLogin({navigation}) {
                 });
             })
             .catch((error) => {
+                setShowSpinner(false);
                 if (error.code === 'auth/invalid-email') {
                     Toast.show({
                         type: 'error',
@@ -65,12 +70,15 @@ export default function AcademicianLogin({navigation}) {
                         text1: 'Kullanıcı bulunamadı'
                     });
                 }
-                console.log(error);
             });
     };
 
     return (
         <View style={styles.container}>
+            <Spinner
+                visible={showSpinner}
+                textContent={'Lütfen bekleyin...'}
+            />
             <Text style={styles.title}> Akademisyen Girişi</Text>
             <View style={styles.inputView}>
                 <TextInput

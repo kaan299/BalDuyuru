@@ -3,17 +3,11 @@ import React, {useEffect, useState} from "react";
 import {collection, getDocs, query, where} from "firebase/firestore";
 import {database} from "../firebase";
 import {generalType} from "../constants";
-
-const Item = ({title}) => {
-    return (
-        <View style={styles.item}>
-            <Text style={styles.itemTitle}>{title}</Text>
-        </View>
-    )
-}
+import Item from "../Item";
 
 export default function GeneralAnnouncements() {
     const [announcements, setAnnouncements] = useState([]);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     const getAnnouncements = () => {
         const q = query(collection(database, 'announcement'),
@@ -21,6 +15,7 @@ export default function GeneralAnnouncements() {
         getDocs(q).then(snapshot => {
             const data = snapshot.docs.map(x => x.data());
             setAnnouncements(data);
+            setIsRefreshing(false);
         });
     }
 
@@ -28,17 +23,30 @@ export default function GeneralAnnouncements() {
         getAnnouncements();
     });
 
+    const onRefresh = () => {
+        setIsRefreshing(true)
+        getAnnouncements();
+    }
+
     return (
         <View style={styles.container}>
+            <Text style={styles.tabHeader}>Genel Duyurular</Text>
             {!announcements && <Text style={{marginTop: 10}}>Yükleniyor...</Text>}
             {announcements &&
                 <>
                     {announcements.length === 0 && <Text style={{marginTop: 10}}>Duyuru bulunamadı...</Text>}
                     <FlatList data={announcements}
-                              renderItem={({item}) => <Item style={styles.item} title={item.title}
-                                                            createdDate={item.createdDate}/>}
+                              onRefresh={onRefresh}
+                              refreshing={isRefreshing}
+                              renderItem={({item}) => {
+                                  return <Item title={item.title}
+                                               content={item.content}
+                                               createdDate={item.createdDate}
+                                  />
+                              }}
                               keyExtractor={item => item.id}
                               contentContainerStyle={styles.flatListContent}
+
                     />
                 </>
             }
@@ -49,59 +57,18 @@ export default function GeneralAnnouncements() {
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        backgroundColor: '#fff',
-        alignItems: 'center',
-    },
-    title: {
-        fontWeight: "bold",
-        fontSize: 50,
-        color: "#000",
-        marginBottom: 40,
-    },
-    inputView: {
-        width: "80%",
-        borderRadius: 5,
-        height: 50,
-        marginBottom: 20,
-        justifyContent: "center",
-        padding: 20,
-        backgroundColor: '#eee'
-    },
-    inputText: {
-        height: 50,
-        color: "white"
-    },
-    btnTxt: {
-        color: "white",
-        fontSize: 14
-    },
-    btn: {
-        width: '80%',
-        backgroundColor: "#008884",
-        borderRadius: 5,
-        height: 40,
-        alignItems: "center",
-        justifyContent: "center",
-        alignSelf: 'center',
-        marginBottom: 10,
-        marginTop: 10
-    },
-    item: {
-        width: '100%',
-        padding: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-    },
-    itemTitle: {
-        fontSize: 15,
+        backgroundColor: '#fff'
     },
     flatListContent: {
         width: '100%',
-        height: '80%'
+        height: '100%'
     },
-    line: {
-        padding: 1,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
+    tabHeader: {
+        backgroundColor: "#008884",
+        color: "white",
+        width: '100%',
+        textAlign: 'center',
+        padding: 10,
+        fontWeight: "400"
     }
 });

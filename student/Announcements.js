@@ -19,12 +19,12 @@ export default function Announcements({navigation}) {
     
     return (
         <>
-            <TouchableOpacity
+            {/*<TouchableOpacity
                 onPress={onLogout}
                 style={styles.logoutBtn}
             >
                 <Text style={styles.btnTxt}>Çıkış Yap</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>*/}
             <Tab.Navigator>
                 <Tab.Screen name="Genel" component={GeneralAnnouncements}/>
                 <Tab.Screen name="Fakülte" component={FacultyAnnouncements}/>

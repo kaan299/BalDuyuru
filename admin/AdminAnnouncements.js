@@ -4,18 +4,12 @@ import {collection, getDocs, query, where} from "firebase/firestore";
 import {database} from "../firebase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {adminUserKey} from "../constants";
-
-const Item = ({title}) => {
-    return (
-        <View style={styles.item}>
-            <Text style={styles.itemTitle}>{title}</Text>
-        </View>
-    )
-}
+import Item from "../Item";
 
 export default function AdminAnnouncements({navigation}) {
     const [user, setUser] = useState();
     const [announcements, setAnnouncements] = useState([]);
+    const [isRefreshing, setIsRefreshing] = useState(false)
 
     useEffect(() => {
         AsyncStorage.getItem(adminUserKey, (user) => {
@@ -30,6 +24,7 @@ export default function AdminAnnouncements({navigation}) {
         getDocs(q).then(snapshot => {
             const data = snapshot.docs.map(x => x.data());
             setAnnouncements(data);
+            setIsRefreshing(false);
         });
     }
 
@@ -38,6 +33,11 @@ export default function AdminAnnouncements({navigation}) {
             getAnnouncements();
         }
     }, [user]);
+
+    const onRefresh = () => {
+        setIsRefreshing(true)
+        getAnnouncements();
+    }
 
     return (
         <View style={styles.container}>
@@ -48,17 +48,22 @@ export default function AdminAnnouncements({navigation}) {
                 <Text style={styles.btnTxt}>Yeni Duyuru Ekle</Text>
             </TouchableOpacity>
             <View style={styles.line}/>
-            {announcements.length === 0 && <Text>Yükleniyor...</Text>}
-            {!announcements && <Text>Yükleniyor...</Text>}
+            {!announcements && <Text style={{marginTop: 10}}>Yükleniyor...</Text>}
             {announcements &&
                 <>
+                    {announcements.length === 0 && <Text style={{marginTop: 10}}>Duyuru bulunamadı...</Text>}
                     <FlatList data={announcements}
-                              renderItem={({item}) => <Item style={styles.item} title={item.title}
-                                                            createdDate={item.createdDate}/>}
+                              onRefresh={onRefresh}
+                              refreshing={isRefreshing}
+                              renderItem={({item}) => {
+                                  return <Item title={item.title}
+                                               content={item.content}
+                                               createdDate={item.createdDate}
+                                  />
+                              }}
                               keyExtractor={item => item.id}
                               contentContainerStyle={styles.flatListContent}
                     />
-                    {announcements.length === 0 && <Text>Duyuru bulunamadı...</Text>}
                 </>
             }
         </View>

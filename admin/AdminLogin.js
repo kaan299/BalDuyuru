@@ -7,12 +7,15 @@ import Toast from "react-native-toast-message";
 import {getDocs, query, collection, where} from 'firebase/firestore';
 import {adminRole} from "../roles";
 import {adminUserKey} from "../constants";
+import Spinner from "react-native-loading-spinner-overlay";
 
 export default function AdminLogin({navigation}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showSpinner, setShowSpinner] = useState(false);
 
     const onPressLogin = () => {
+        setShowSpinner(true);
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
@@ -28,6 +31,7 @@ export default function AdminLogin({navigation}) {
                             roles: userRoles
                         });
                         AsyncStorage.setItem(adminUserKey, userInfo).then(() => {
+                            setShowSpinner(false);
                             navigation.navigate("Administrator");
                         });
                     } else {
@@ -40,6 +44,7 @@ export default function AdminLogin({navigation}) {
                 });
             })
             .catch((error) => {
+                setShowSpinner(false);
                 if (error.code === 'auth/invalid-email') {
                     Toast.show({
                         type: 'error',
@@ -69,6 +74,10 @@ export default function AdminLogin({navigation}) {
 
     return (
         <View style={styles.container}>
+            <Spinner
+                visible={showSpinner}
+                textContent={'Lütfen bekleyin...'}
+            />
             <Text style={styles.title}> Yönetici Girişi</Text>
             <View style={styles.inputView}>
                 <TextInput
