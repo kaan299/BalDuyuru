@@ -1,18 +1,76 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import React, {useEffect, useState} from "react";
+import {Image, Platform, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import React, {useEffect, useRef, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {studentUserKey} from "../constants";
-import {collection, getDocs, query, where} from "firebase/firestore";
+import {addDoc, collection, getDocs, query, where} from "firebase/firestore";
 import {database} from "../firebase";
 import SelectDropdown from "react-native-select-dropdown";
 import Toast from "react-native-toast-message";
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+    }),
+});
+
+function handleRegistrationError(errorMessage) {
+    alert(errorMessage);
+    throw new Error(errorMessage);
+}
+
+async function registerForPushNotificationsAsync() {
+    if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+        });
+    }
+
+    const {status: existingStatus} = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+        const {status} = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+        handleRegistrationError('Permission not granted to get push token for push notification!');
+        return;
+    }
+    const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ??
+        Constants?.easConfig?.projectId;
+    if (!projectId) {
+        handleRegistrationError('Project ID not found');
+    }
+    try {
+        const pushTokenString = (
+            await Notifications.getExpoPushTokenAsync({
+                projectId,
+            })
+        ).data;
+        console.log(pushTokenString);
+        return pushTokenString;
+    } catch (e) {
+        handleRegistrationError(`${e}`);
+    }
+}
 
 export default function ChooseFacultyDepartment({navigation}) {
+    const notificationListener = useRef();
+    const responseListener = useRef();
+
     const [faculties, setFaculties] = useState();
     const [departments, setDepartments] = useState();
     const [selectedFaculty, setSelectedFaculty] = useState();
     const [selectedDepartment, setSelectedDepartment] = useState();
 
+    //öğrencinin seçmesi için fakülte listesi getirir
     const getFaculties = () => {
         const q = query(collection(database, 'faculties'));
         getDocs(q).then(snapshot => {
@@ -21,10 +79,12 @@ export default function ChooseFacultyDepartment({navigation}) {
         });
     }
 
+    //öğrencinin seçmesi için fakülte listesini sayfa yüklendiğinde getirir
     useEffect(() => {
         getFaculties();
     }, []);
 
+    //öğrencinin seçmesi için bölüm listesi getirir
     const getDepartments = (facultyId) => {
         const q = query(collection(database, 'departments'),
             where("facultyId", "==", facultyId));
@@ -34,16 +94,21 @@ export default function ChooseFacultyDepartment({navigation}) {
         });
     }
 
+    //seçilen fakülteyle ilişkili bölümleri getirir ve seçilen fakülteyi state'de saklar
+    // önceden seçilmiş fakülte varsa seçilen fakülte değişeceği için bölüm listesini boşaltır
     const onSelectFaculty = (selectedItem) => {
         setSelectedFaculty(selectedItem);
         setDepartments(undefined);
         getDepartments(selectedItem.id);
     }
 
+    //seçilen bölümünü state'de saklar
     const onSelectDepartment = (selectedItem) => {
         setSelectedDepartment(selectedItem);
     }
 
+    //seçilen fakülte ve bölümü telefona kaydeder
+    //bölüm ve fakülte seçimini yapılmadıysa uyarı gösteririr
     const onSave = () => {
         if (!selectedFaculty) {
             Toast.show({
@@ -62,6 +127,7 @@ export default function ChooseFacultyDepartment({navigation}) {
             });
             return;
         }
+
         const data = {
             facultyId: selectedFaculty.id,
             facultyName: selectedFaculty.name,
@@ -69,9 +135,30 @@ export default function ChooseFacultyDepartment({navigation}) {
             departmentName: selectedDepartment.name,
         };
 
-        AsyncStorage.setItem(studentUserKey, JSON.stringify(data)).then(() => {
-            navigation.navigate("Announcements");
-        });
+        registerForPushNotificationsAsync()
+            .then((token) => {
+                const deviceData = {
+                    token: token,
+                    facultyId: selectedFaculty.id,
+                    departmentId: selectedDepartment.id
+                }
+                addDoc(collection(database, "devices"), deviceData).then(() => {
+                    AsyncStorage.setItem(studentUserKey, JSON.stringify(data)).then(() => {
+                        navigation.navigate("Announcements");
+                    });
+                });
+            })
+            .catch((error) => handleRegistrationError(`${error}`));
+
+        notificationListener.current =
+            Notifications.addNotificationReceivedListener((notification) => {
+                console.log(notification);
+            });
+
+        responseListener.current =
+            Notifications.addNotificationResponseReceivedListener((response) => {
+                console.log(response);
+            });
     }
 
     return (
@@ -113,7 +200,6 @@ export default function ChooseFacultyDepartment({navigation}) {
         </View>
     )
 }
-
 
 const styles = StyleSheet.create({
     container: {

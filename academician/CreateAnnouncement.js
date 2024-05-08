@@ -7,6 +7,7 @@ import {collection, getDocs, query, where, addDoc, Timestamp} from "firebase/fir
 import {database} from "../firebase";
 import Toast from "react-native-toast-message";
 import {bolumRole, fakulteRole} from "../roles";
+import sendPushNotification from "../notification";
 
 export default function CreateAnnouncement({navigation}) {
     const dropdownRef = useRef();
@@ -18,6 +19,15 @@ export default function CreateAnnouncement({navigation}) {
     const [content, setContent] = useState();
     const [user, setUser] = useState();
 
+
+    //ekrandaki seçim ve girdilere göre duyuru oluşturulur
+    //fakülte yetkilisi rolünde bölüm seçimi yapılabiliyor
+    //bölüm yetkilisi herhangi bir seçim yapamıyor.
+    // başta yetkiyle beraber akademisyen yaratılırken fakülte, bölüm bilgileri belirlenmiş oluyor.
+    //başlık ve içerik girilmezse uyarı mesajı verilir
+    //bölüm seçilirse tipi bölüm olan duyuru oluşur
+    //sadece fakülte seçilirse tipi fakülte olan duyuru oluşur
+    
     const onSave = () => {
         if (!title) {
             Toast.show({
@@ -60,6 +70,7 @@ export default function CreateAnnouncement({navigation}) {
             setTitle(null);
             setContent(null);
             dropdownRef.current.reset();
+            sendPushNotification(data);
 
             Toast.show({
                 type: 'success',
@@ -69,6 +80,7 @@ export default function CreateAnnouncement({navigation}) {
         });
     }
 
+    //fakülteler listelenir
     const getFaculties = () => {
         const q = query(collection(database, 'faculties'));
         getDocs(q).then(snapshot => {
@@ -80,6 +92,7 @@ export default function CreateAnnouncement({navigation}) {
         });
     }
 
+    //fakülteye bağlı bölümler listelenir
     const getDepartments = (facultyId) => {
         const q = query(collection(database, 'departments'),
             where("facultyId", "==", facultyId));
@@ -95,6 +108,7 @@ export default function CreateAnnouncement({navigation}) {
         });
     }
 
+    //telefonun hafızasından akademisyen bilgisini getirir
     useEffect(() => {
         AsyncStorage.getItem(academicianUserKey, (user) => {
         }).then((user) => {
@@ -108,18 +122,16 @@ export default function CreateAnnouncement({navigation}) {
         }
     }, [user]);
 
-    const onLogout = () => {
-        AsyncStorage.removeItem(academicianUserKey).then(() => {
-            navigation.navigate("Login");
-        });
-    }
-
+    //fakülte seçimini state'te saklanır
+    //bölüm listesi önceden fakülte seçilmişse temizlenir
+    //seçilen fakülteye göre bölümler tekrar getirilir
     const onSelectFaculty = (selectedItem) => {
         setSelectedFaculty(selectedItem);
         setDepartments(undefined);
         getDepartments(selectedItem.id);
     }
 
+    //seçilen bölüm bilgisi state'de saklanır
     const onSelectDepartment = (selectedItem) => {
         setSelectedDepartment(selectedItem);
     }
@@ -183,11 +195,7 @@ export default function CreateAnnouncement({navigation}) {
             <TouchableOpacity
                 onPress={onSave}
                 style={styles.saveBtn}>
-                <Text style={styles.loginText}>Kaydet</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={onLogout}>
-                <Text style={styles.forgotAndSignUpText}>Çıkış Yap</Text>
+                <Text style={styles.btnTxt}>Kaydet</Text>
             </TouchableOpacity>
         </View>
     );
@@ -248,5 +256,9 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         marginBottom: 20,
         marginTop: 20
+    },
+    btnTxt: {
+        color: "white",
+        fontSize: 14
     },
 });

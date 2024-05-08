@@ -1,30 +1,16 @@
-import {StyleSheet, Text, TouchableOpacity} from "react-native";
+import {StyleSheet} from "react-native";
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import FacultyAnnouncements from "./FacultyAnnouncements";
 import GeneralAnnouncements from "./GeneralAnnouncements";
 import DepartmentAnnouncements from "./DepartmentAnnouncements";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import {studentUserKey} from "../constants";
 import React from "react";
 
 const Tab = createMaterialTopTabNavigator();
 
-export default function Announcements({navigation}) {
-
-    const onLogout = () => {
-        AsyncStorage.removeItem(studentUserKey).then(() => {
-            navigation.navigate("Login");
-        });
-    }
-    
+//sayfada gösterilecek bölümler oluşturulur, genel, fakülte, bölüm gibi navigation bar ögeleri
+export default function Announcements() {
     return (
         <>
-            {/*<TouchableOpacity
-                onPress={onLogout}
-                style={styles.logoutBtn}
-            >
-                <Text style={styles.btnTxt}>Çıkış Yap</Text>
-            </TouchableOpacity>*/}
             <Tab.Navigator>
                 <Tab.Screen name="Genel" component={GeneralAnnouncements}/>
                 <Tab.Screen name="Fakülte" component={FacultyAnnouncements}/>

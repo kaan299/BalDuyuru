@@ -2,18 +2,19 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {academicianUserKey, adminUserKey, studentUserKey} from "./constants";
+import Academician from "./academician/Academician";
 
 export default function Login({navigation}) {
-    function getUserCallback(user) {
+    function getAcademicianCallback(user) {
         if (user === null) {
             navigation.navigate("AcademicianLogin");
         } else {
-            navigation.navigate("AcademicianCreateAnnouncement");
+            navigation.navigate("Academician");
         }
     }
 
     const academicianLogin = () => {
-        AsyncStorage.getItem(academicianUserKey).then(getUserCallback);
+        AsyncStorage.getItem(academicianUserKey).then(getAcademicianCallback);
     }
 
     function getAdminCallback(user) {

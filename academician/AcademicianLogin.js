@@ -14,11 +14,16 @@ export default function AcademicianLogin({navigation}) {
     const [password, setPassword] = useState("");
     const [showSpinner, setShowSpinner] = useState(false);
 
+    //eposta ve şifre ile giriş yapılır
+    //giriş yapılan bilgiler bulunamazsa ilgili hata mesajı gösterilir.(örn. şifre geçersiz, eposta geçersiz, kullanıcı bulunamadı)
+    //giriş yapan kişinin yetkisi fakülte veya bölüm yetkilisi değişse uyarı mesajı gösterir
+    //giriş başarılı ve yetki geçerli ise ilgili sayfaya yönlendirilir
     const onPressLogin = () => {
         setShowSpinner(true);
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
+                console.log(user);
 
                 const q = query(collection(database, 'roles'), where('userId', '==', user.uid));
                 getDocs(q).then(snapshot => {
@@ -34,15 +39,23 @@ export default function AcademicianLogin({navigation}) {
                         });
                         AsyncStorage.setItem(academicianUserKey, userInfo).then(() => {
                             setShowSpinner(false);
-                            navigation.navigate("AcademicianCreateAnnouncement");
+                            navigation.navigate("Academician");
                         });
                     } else {
+                        setShowSpinner(false);
                         Toast.show({
                             type: 'error',
                             position: 'bottom',
                             text1: 'Yetki bulunamadı'
                         });
                     }
+                }).catch(error => {
+                    setShowSpinner(false);
+                    Toast.show({
+                        type: 'error',
+                        position: 'bottom',
+                        text1: 'Yetki bulunamadı'
+                    });
                 });
             })
             .catch((error) => {
@@ -100,10 +113,6 @@ export default function AcademicianLogin({navigation}) {
                     placeholderTextColor="#003f5c"
                     onChangeText={text => setPassword(text)}/>
             </View>
-            <TouchableOpacity
-                onPress={() => navigation.navigate("ForgotPassword")}>
-                <Text style={styles.forgotAndSignUpText}>Şifremi Unuttum</Text>
-            </TouchableOpacity>
             <TouchableOpacity
                 onPress={onPressLogin}
                 style={styles.loginBtn}>

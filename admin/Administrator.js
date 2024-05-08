@@ -1,7 +1,7 @@
 import {Text, TouchableOpacity, View} from "react-native";
 import {StyleSheet} from "react-native";
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import AdminAnnouncements from "./AdminAnnouncements";
+import AdminAnnouncements from "./Announcements";
 import AcademicianManagement from "./AcademicianManagement";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -12,6 +12,7 @@ const Tab = createMaterialTopTabNavigator();
 export default function Administrator({navigation}) {
     const [user, setUser] = useState(null);
 
+    //telefonda kayıtlı admin bilgisinin getirir state'de saklar
     useEffect(() => {
         AsyncStorage.getItem(adminUserKey, (user) => {
         }).then((user) => {
@@ -19,6 +20,7 @@ export default function Administrator({navigation}) {
         });
     }, []);
 
+    //admin bilgisini telefon hafızasından siler ve giriş yap ekranına yönlendirir
     const onLogout = () => {
         AsyncStorage.removeItem(adminUserKey).then(() => {
             navigation.navigate("Login");

@@ -6,6 +6,8 @@ const generalType = 'general';
 const facultyType = 'faculty';
 const departmentType = 'department';
 
+const apiURL = "http://localhost:3000";
+
 export {
     adminUserKey,
     academicianUserKey,
@@ -13,4 +15,5 @@ export {
     generalType,
     facultyType,
     departmentType,
+    apiURL
 }

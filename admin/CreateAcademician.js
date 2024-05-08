@@ -2,19 +2,22 @@ import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native"
 import React, {useEffect, useRef, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SelectDropdown from "react-native-select-dropdown";
-import {adminUserKey, facultyType, generalType} from "../constants";
+import {adminUserKey, apiURL, departmentType, facultyType, generalType} from "../constants";
 import {collection, getDocs, query, where, addDoc, Timestamp} from "firebase/firestore";
 import {database} from "../firebase";
 import Toast from "react-native-toast-message";
-import {fakulteRole} from "../roles";
+import {bolumRole, fakulteRole} from "../roles";
 
-export default function CreateAnnouncement({navigation}) {
+export default function CreateAcademician({navigation}) {
     const dropdownRef = useRef();
-    const [faculties, setFaculties] = useState();
-    const [selectedFaculty, setSelectedFaculty] = useState();
-    const [title, setTitle] = useState();
-    const [content, setContent] = useState();
     const [user, setUser] = useState();
+    const [faculties, setFaculties] = useState();
+    const [departments, setDepartments] = useState();
+    const [selectedFaculty, setSelectedFaculty] = useState();
+    const [selectedDepartment, setSelectedDepartment] = useState();
+    const [displayName, setDisplayName] = useState();
+    const [email, setEmail] = useState();
+    const [password, setPassword] = useState();
 
     //ekrandaki seçim ve girdilere göre duyuru oluşturulur
     //yöneticilerde fakülte seçimi zorunlu değil. bölüm seçimi yapamıyor. admin bölüm bazında duyuru gösteremez.
@@ -23,60 +26,96 @@ export default function CreateAnnouncement({navigation}) {
     //fakülte seçilirle tipi fakülte olur.
     //seçilmezse tipi general olur.
     const onSave = () => {
-        if (!title) {
+        if (!selectedFaculty) {
             Toast.show({
                 type: 'error',
                 position: 'bottom',
-                text1: 'Başlık girin'
+                text1: 'Fakülte seçin'
             });
             return;
         }
 
-        if (!content) {
+        if (!displayName) {
             Toast.show({
                 type: 'error',
                 position: 'bottom',
-                text1: 'İçerik girin'
+                text1: 'Ad soyad girin'
+            });
+            return;
+        }
+
+        if (!email) {
+            Toast.show({
+                type: 'error',
+                position: 'bottom',
+                text1: 'Eposta girin'
+            });
+            return;
+        }
+
+        if (!password) {
+            Toast.show({
+                type: 'error',
+                position: 'bottom',
+                text1: 'Şifre girin'
             });
             return;
         }
 
         const data = {
-            title: title,
-            content: content,
-            createdDate: Timestamp.fromDate(new Date()),
-            userId: user.id
+            displayName: displayName,
+            email: email,
+            password: password,
+            facultyId: selectedFaculty.id
         };
 
         if (selectedFaculty) {
-            data.facultyId = selectedFaculty.id;
-            data.type = facultyType;
-        } else {
-            data.type = generalType;
+            data.role = fakulteRole;
         }
 
-        addDoc(collection(database, "announcement"), data).then(() => {
-            setTitle(null);
-            setContent(null);
+        if (selectedDepartment) {
+            data.departmentId = selectedDepartment.id;
+            data.role = bolumRole;
+        }
 
-            if (user.roles.includes(fakulteRole)) {
-                dropdownRef.current.reset();
-            }
+        fetch(apiURL + "/academicians", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        }).then(response => {
+            setSelectedFaculty(null);
+            setDisplayName(null);
+            setEmail(null);
+            setPassword(null);
+            dropdownRef.current.reset();
 
             Toast.show({
                 type: 'success',
                 position: 'bottom',
-                text1: 'Duyuru Başarıyla Gönderildi'
+                text1: 'Akademisyen başarıyla eklendi.'
             });
-        });
+        }).catch(error => console.log(error));
     }
 
-    //yöneticinin seçebileceği fakülte listesinin getirir
+    //fakülteler listelenir
     const getFaculties = () => {
         const q = query(collection(database, 'faculties'));
         getDocs(q).then(snapshot => {
+            const faculties = snapshot.docs.map(x => x.data());
+            setFaculties(faculties);
+            getDepartments(faculties[0].id);
+        });
+    }
+
+    //fakülteye bağlı bölümler listelenir
+    const getDepartments = (facultyId) => {
+        const q = query(collection(database, 'departments'),
+            where("facultyId", "==", facultyId));
+        getDocs(q).then(snapshot => {
             const data = snapshot.docs.map(x => x.data());
-            setFaculties(data);
+            setDepartments(data);
         });
     }
 
@@ -90,18 +129,27 @@ export default function CreateAnnouncement({navigation}) {
         getFaculties();
     }, []);
 
-    //fakülte seçildiğinde seçileni state'te saklar
+    //fakülte seçimini state'te saklanır
+    //bölüm listesi önceden fakülte seçilmişse temizlenir
+    //seçilen fakülteye göre bölümler tekrar getirilir
     const onSelectFaculty = (selectedItem) => {
         setSelectedFaculty(selectedItem);
+        setDepartments(undefined);
+        getDepartments(selectedItem.id);
+    }
+
+    //seçilen bölüm bilgisi state'de saklanır
+    const onSelectDepartment = (selectedItem) => {
+        setSelectedDepartment(selectedItem);
     }
 
     return (
         <View style={styles.container}>
             <SelectDropdown
-                ref={dropdownRef}
                 dropdownStyle={styles.dropdown}
                 buttonStyle={styles.dropdownButton}
                 data={faculties}
+                defaultValueByIndex={0}
                 defaultValue={selectedFaculty}
                 onSelect={(selectedItem, index) => {
                     onSelectFaculty(selectedItem);
@@ -112,25 +160,48 @@ export default function CreateAnnouncement({navigation}) {
                 rowTextForSelection={(item, index) => item.name}
                 defaultButtonText={"Fakülte Seçin"}
             />
+            <SelectDropdown
+                ref={dropdownRef}
+                dropdownStyle={styles.dropdown}
+                buttonStyle={styles.dropdownButton}
+                data={departments}
+                disabled={!selectedFaculty}
+                defaultValueByIndex={0}
+                defaultValue={selectedDepartment}
+                onSelect={(selectedItem, index) => {
+                    onSelectDepartment(selectedItem);
+                }}
+                buttonTextAfterSelection={(selectedItem, index) => {
+                    return selectedItem.name;
+                }}
+                rowTextForSelection={(item, index) => item.name}
+                defaultButtonText={"Bölüm Seçin"}
+            />
             <Text style={{textAlign: 'center', width: '80%', marginBottom: 15, marginTop: 5}}>
-                Fakülte seçilmemesi durumunda duyurunuz genel duyuru olacaktır.
+                Bölüm seçilmemesi durumunda akademisyen fakülte yetkilisi olacaktır.
             </Text>
             <View style={styles.inputView}>
                 <TextInput
                     style={styles.inputText}
-                    defaultValue={title}
-                    placeholder="Başlık"
-                    onChangeText={(text) => setTitle(text)}
+                    defaultValue={displayName}
+                    placeholder="Ad soyad"
+                    onChangeText={(text) => setDisplayName(text)}
                     placeholderTextColor="#003f5c"/>
             </View>
-            <View style={styles.inputMultiLineView}>
+            <View style={styles.inputView}>
                 <TextInput
-                    style={styles.multiLineTextInput}
-                    placeholder="İçerik"
-                    defaultValue={content}
-                    multiline={true}
-                    numberOfLines={3}
-                    onChangeText={(text) => setContent(text)}
+                    style={styles.inputText}
+                    defaultValue={email}
+                    placeholder="Eposta"
+                    onChangeText={(text) => setEmail(text)}
+                    placeholderTextColor="#003f5c"/>
+            </View>
+            <View style={styles.inputView}>
+                <TextInput
+                    style={styles.inputText}
+                    defaultValue={password}
+                    placeholder="Şifre"
+                    onChangeText={(text) => setPassword(text)}
                     placeholderTextColor="#003f5c"/>
             </View>
             <TouchableOpacity
@@ -160,6 +231,7 @@ const styles = StyleSheet.create({
         paddingRight: 10
     },
     dropdownButton: {
+        marginTop: 20,
         width: '80%'
     },
     inputView: {

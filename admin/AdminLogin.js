@@ -14,6 +14,10 @@ export default function AdminLogin({navigation}) {
     const [password, setPassword] = useState("");
     const [showSpinner, setShowSpinner] = useState(false);
 
+    //eposta ve şifre ile yönetici girişi yapılır
+    //giriş yapılan bilgiler bulunamazsa ilgili hata mesajı gösterilir.(örn. şifre geçersiz, eposta geçersiz, kullanıcı bulunamadı)
+    //giriş yapan kişinin yetkisi admin değişse uyarı mesajı gösterir
+    //giriş başarılı ve admin yetkisi varsa yönetici sayfasına yönlendirilir
     const onPressLogin = () => {
         setShowSpinner(true);
         signInWithEmailAndPassword(auth, email, password)
@@ -35,12 +39,20 @@ export default function AdminLogin({navigation}) {
                             navigation.navigate("Administrator");
                         });
                     } else {
+                        setShowSpinner(false);
                         Toast.show({
                             type: 'error',
                             position: 'bottom',
                             text1: 'Yetki bulunamadı'
                         });
                     }
+                }).catch(error => {
+                    setShowSpinner(false);
+                    Toast.show({
+                        type: 'error',
+                        position: 'bottom',
+                        text1: 'Yetki bulunamadı'
+                    });
                 });
             })
             .catch((error) => {

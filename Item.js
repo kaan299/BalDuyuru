@@ -1,6 +1,10 @@
 import React, {useState} from "react";
 import {Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 
+//duyuru gösterimleri tüm ekranlarda aynı tasarıma sahip. 
+//bu yüzden ortak kullanılması kodun düzenli olması açısından önemli.
+//tek bir item component oluşturarak içerisinde değişiklik gerektiğinde yine tek bi yeri değiştirerek her yere etki etmesini sağlıyoruz.
+//aynı zamanda modal ile duyurunun detay gösterimi de burada yapılıyor.
 export default function Item({title, content}) {
     const [modalVisible, setModalVisible] = useState(false);
 

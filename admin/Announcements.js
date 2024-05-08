@@ -11,6 +11,7 @@ export default function AdminAnnouncements({navigation}) {
     const [announcements, setAnnouncements] = useState([]);
     const [isRefreshing, setIsRefreshing] = useState(false)
 
+    //giriş yapan yöneticinin bilgilerini telefon hafızaından getirir
     useEffect(() => {
         AsyncStorage.getItem(adminUserKey, (user) => {
         }).then((user) => {
@@ -18,6 +19,7 @@ export default function AdminAnnouncements({navigation}) {
         });
     }, []);
 
+    //yöneticinin oluşturduğu duyuruları getirir
     const getAnnouncements = () => {
         const q = query(collection(database, 'announcement'),
             where('userId', '==', user.id));

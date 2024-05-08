@@ -1,5 +1,4 @@
 import {NavigationContainer} from '@react-navigation/native';
-import ForgotPassword from "./academician/ForgotPassword";
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Login from "./Login";
 import Announcements from "./student/Announcements";
@@ -10,6 +9,8 @@ import AcademicianCreateAnnouncement from "./academician/CreateAnnouncement";
 import Administrator from "./admin/Administrator";
 import AdminLogin from "./admin/AdminLogin";
 import ChooseFacultyDepartment from "./student/ChooseFacultyDepartment";
+import Academician from "./academician/Academician";
+import CreateAcademician from "./admin/CreateAcademician";
 
 const Stack = createNativeStackNavigator();
 
@@ -33,15 +34,19 @@ function App() {
                 <Stack.Screen
                     name="AcademicianLogin"
                     component={AcademicianLogin}
-                    options={{title: 'Akademisyen'}}
+                    options={{title: 'Akademisyen Girişi'}}
                 />
-                <Stack.Screen name="ForgotPassword"
-                              component={ForgotPassword}
-                              options={{title: 'Şife Sıfırlama'}}
+                <Stack.Screen name="Academician"
+                              component={Academician}
+                              options={{title: 'Akademisyen'}}
                 />
                 <Stack.Screen name="AdminCreateAnnouncement"
                               component={AdminCreateAnnouncement}
                               options={{title: 'Duyuru Ekle'}}
+                />
+                <Stack.Screen name="CreateAcademician"
+                              component={CreateAcademician}
+                              options={{title: 'Akademisyen Ekle'}}
                 />
                 <Stack.Screen name="AcademicianCreateAnnouncement"
                               component={AcademicianCreateAnnouncement}

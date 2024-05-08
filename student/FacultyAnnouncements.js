@@ -10,8 +10,9 @@ export default function FacultyAnnouncements() {
     const [announcements, setAnnouncements] = useState([]);
     const [facultyDepartment, setFacultyDepartment] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false)
-
-
+    
+    //uygulamayı ilk yüklediğinde öğrenci fakülte ve bölüm seçer,
+    //bu seçilen bölüm ve fakülte bilgisini cihaz hafızasından getirir
     useEffect(() => {
         AsyncStorage.getItem(studentUserKey, (data) => {
         }).then((data) => {
@@ -19,6 +20,7 @@ export default function FacultyAnnouncements() {
         });
     }, []);
 
+    //öğrencinin fakültesine göre fakülte tipindeki duyuruları getirir
     const getAnnouncements = () => {
         const q = query(collection(database, 'announcement'),
             where('type', '==', facultyType), where("facultyId", "==", facultyDepartment.facultyId));
@@ -29,6 +31,7 @@ export default function FacultyAnnouncements() {
         });
     }
 
+    //öğrenci fakülte ve bölüm bilgisi alındıktan sonra duyuruları getirir
     useEffect(() => {
         if (facultyDepartment) {
             getAnnouncements();
