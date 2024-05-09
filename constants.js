@@ -6,7 +6,7 @@ const generalType = 'general';
 const facultyType = 'faculty';
 const departmentType = 'department';
 
-const apiURL = "http://localhost:3000";
+const apiURL = "https://balduyuru.ew.r.appspot.com";
 
 export {
     adminUserKey,

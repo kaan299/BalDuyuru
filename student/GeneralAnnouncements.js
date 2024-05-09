@@ -1,4 +1,4 @@
-import {FlatList, StyleSheet, Text, View} from "react-native";
+import {FlatList, ScrollView, StyleSheet, Text, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import {collection, getDocs, query, where} from "firebase/firestore";
 import {database} from "../firebase";
@@ -38,7 +38,7 @@ export default function GeneralAnnouncements() {
             <Text style={styles.tabHeader}>Genel Duyurular</Text>
             {!announcements && <Text style={{marginTop: 10}}>Yükleniyor...</Text>}
             {announcements &&
-                <>
+                <ScrollView>
                     {announcements.length === 0 && <Text style={{marginTop: 10}}>Duyuru bulunamadı...</Text>}
                     <FlatList data={announcements}
                               onRefresh={onRefresh}
@@ -53,7 +53,7 @@ export default function GeneralAnnouncements() {
                               contentContainerStyle={styles.flatListContent}
 
                     />
-                </>
+                </ScrollView>
             }
         </View>
     );
@@ -62,7 +62,8 @@ export default function GeneralAnnouncements() {
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        minHeight: "100%"
     },
     flatListContent: {
         width: '100%',

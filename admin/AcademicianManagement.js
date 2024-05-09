@@ -1,4 +1,4 @@
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {adminUserKey, apiURL} from "../constants";
@@ -58,19 +58,19 @@ export default function AcademicianManagement({navigation}) {
             <View style={styles.line}/>
             {!academicians && <Text style={{marginTop: 10}}>Yükleniyor...</Text>}
             {academicians &&
-                <>
+                <ScrollView>
                     {academicians.length === 0 && <Text style={{marginTop: 10}}>Akademisyen bulunamadı...</Text>}
                     <FlatList data={academicians}
                               onRefresh={onRefresh}
                               refreshing={isRefreshing}
-                              renderItem={({item}) => <AcademicianItem 
+                              renderItem={({item}) => <AcademicianItem
                                   user={item}
                                   deleteCallback={deleteCallback}
                               />}
                               keyExtractor={item => item.id}
                               contentContainerStyle={styles.flatListContent}
                     />
-                </>
+                </ScrollView>
             }
         </View>
     );
@@ -78,7 +78,8 @@ export default function AcademicianManagement({navigation}) {
 
 const styles = StyleSheet.create({
     container: {
-        width: '100%'
+        width: '100%',
+        minHeight: "100%"
     },
     title: {
         fontWeight: "bold",

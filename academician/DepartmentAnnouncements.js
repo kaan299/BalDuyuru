@@ -1,4 +1,4 @@
-import {FlatList, StyleSheet, Text, View} from "react-native";
+import {FlatList, ScrollView, StyleSheet, Text, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import {collection, getDocs, query, where} from "firebase/firestore";
 import {database} from "../firebase";
@@ -45,7 +45,7 @@ export default function DepartmentAnnouncements() {
         <View style={styles.container}>
             {!announcements && <Text style={{marginTop: 10}}>Yükleniyor...</Text>}
             {announcements &&
-                <>
+                <ScrollView>
                     {announcements.length === 0 && <Text style={{marginTop: 10}}>Duyuru bulunamadı...</Text>}
                     <FlatList data={announcements}
                               onRefresh={onRefresh}
@@ -59,7 +59,7 @@ export default function DepartmentAnnouncements() {
                               keyExtractor={item => item.id}
                               contentContainerStyle={styles.flatListContent}
                     />
-                </>
+                </ScrollView>
             }
         </View>
     );
@@ -68,7 +68,8 @@ export default function DepartmentAnnouncements() {
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        minHeight: "100%"
     },
     title: {
         fontWeight: "bold",

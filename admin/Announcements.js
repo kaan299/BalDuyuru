@@ -1,4 +1,4 @@
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import {collection, getDocs, query, where} from "firebase/firestore";
 import {database} from "../firebase";
@@ -21,8 +21,7 @@ export default function AdminAnnouncements({navigation}) {
 
     //yöneticinin oluşturduğu duyuruları getirir
     const getAnnouncements = () => {
-        const q = query(collection(database, 'announcement'),
-            where('userId', '==', user.id));
+        const q = query(collection(database, 'announcement'));
         getDocs(q).then(snapshot => {
             const data = snapshot.docs.map(x => x.data());
             setAnnouncements(data);
@@ -52,7 +51,7 @@ export default function AdminAnnouncements({navigation}) {
             <View style={styles.line}/>
             {!announcements && <Text style={{marginTop: 10}}>Yükleniyor...</Text>}
             {announcements &&
-                <>
+                <ScrollView>
                     {announcements.length === 0 && <Text style={{marginTop: 10}}>Duyuru bulunamadı...</Text>}
                     <FlatList data={announcements}
                               onRefresh={onRefresh}
@@ -63,10 +62,9 @@ export default function AdminAnnouncements({navigation}) {
                                                createdDate={item.createdDate}
                                   />
                               }}
-                              keyExtractor={item => item.id}
                               contentContainerStyle={styles.flatListContent}
                     />
-                </>
+                </ScrollView>
             }
         </View>
     );
@@ -74,7 +72,8 @@ export default function AdminAnnouncements({navigation}) {
 
 const styles = StyleSheet.create({
     container: {
-        width: '100%'
+        width: '100%',
+        minHeight: "100%"
     },
     title: {
         fontWeight: "bold",
